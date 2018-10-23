@@ -1,0 +1,10 @@
+#!/bin/bash
+shopt -s nullglob
+set -eu
+
+# this kit has no features yet
+#validate_features ...
+
+declare -a manifests
+manifests+=( manifests/load-balancer.yml )
+echo ${manifests[@]}

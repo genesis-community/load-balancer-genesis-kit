@@ -1,0 +1,40 @@
+---
+meta:
+  default:
+    azs: [z1]
+
+instance_groups:
+  - name:      load-balancer
+    instances: 1
+    azs:       (( grab params.availability_zones || meta.default.azs ))
+    stemcell:  default
+    networks:
+    - name:       (( grab params.haproxy_network || "default" ))
+      static_ips: (( static_ips (4, 3, 255)))
+    vm_type:   (( grab params.vm_type || "default" ))
+
+    properties:
+      debug: false
+
+    jobs:
+    - name: haproxy
+      properties:
+        advanced: (( grab params.advanced_haproxy_config  ))
+        load-balancers: (( grab params.load_balancers  ))
+
+update:
+  serial:            false
+  canaries:          1
+  max_in_flight:     1
+  max_errors:        1
+  canary_watch_time: 5000-600000
+  update_watch_time: 5000-600000
+
+stemcells:
+  - alias:   default
+    os:      (( grab params.stemcell_os      || "ubuntu-xenial" ))
+    version: (( grab params.stemcell_version || "latest" ))
+
+releases:
+  - name:    load-balancer
+    version: latest
