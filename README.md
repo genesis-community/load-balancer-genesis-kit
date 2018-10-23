@@ -1,9 +1,6 @@
 load-balancer Genesis Kit
 =================
 
-FIXME: The kit author should have filled this in with details about
-what this is, and what it provides. But they have not, and that is sad.
-Perhaps a GitHub issue should be opened to remind them of this?
 
 Quick Start
 -----------
