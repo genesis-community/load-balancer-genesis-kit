@@ -2,8 +2,8 @@
 meta:
   kit:     load-balancer 
   release: Load Balancer Genesis Kit
-  target:  bucc 
-  url:     https://192.168.50.6 
+  target:  pipes
+  url:     https://pipes.starkandwayne.com/
 
 
   bosh:
@@ -21,7 +21,7 @@ meta:
     secret_key: (( vault "secret/aws/cfcommunity:secret" ))
 
   github:
-    owner:  ahartpence
+    owner:  genesis-community
     repo:   load-balancer-genesis-kit
     branch: master
     private_key:  (( vault "secret/pipelines/shared/github/genesis-bot:private" ))

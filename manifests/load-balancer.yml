@@ -36,5 +36,7 @@ stemcells:
     version: (( grab params.stemcell_version || "latest" ))
 
 releases:
-  - name:    load-balancer
-    version: latest
+- name:    load-balancer
+  version: 0.1.0
+  url:     https://github.com/genesis-community/load-balancer-boshrelease/releases/download/v0.1.0/load-balancer-0.1.0.tgz
+  sha1:    9631ddbac1ef3431612a2d11220ab0bc6f0ae813
