@@ -13,11 +13,9 @@ instance_groups:
       static_ips: (( static_ips (4, 3, 255)))
     vm_type:   (( grab params.vm_type || "default" ))
 
-    properties:
-      debug: false
-
     jobs:
     - name: haproxy
+      release: load-balancer
       properties:
         advanced: (( grab params.advanced_haproxy_config  ))
         load-balancers: (( grab params.load_balancers  ))
