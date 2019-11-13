@@ -1,22 +1,13 @@
+---
+kit:
+  features: []
 
 params:
-  load_balancers:
-  - name: front-door # ---------- an EXAMPLE load balancer
-    mode: http       #            you can have lots of these...
-    port: 443
-    acls:
-    - name: allow-internal
-      allow:
-        - 10.0.0.0/8
-    backend:
-      addresses:
-        - 10.2.1.1
+  env:   ci-baseline
+  bosh:  genesis-ci
 
-    tls:
-      certificates:
-        - (( vault "secret/ahartpence/load/balancer/cert:combined" )) 
-  advanced_haproxy_config: null
-  haproxy_network: default
-  vm_type: default
-  env: ci-baseline
-  bosh: genesis-ci
+  load-balancers:
+    - name: HTTP
+      mode: http
+      port: 80
+      redirect_to_https: all
