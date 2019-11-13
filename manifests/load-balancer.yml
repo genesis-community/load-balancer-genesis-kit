@@ -3,22 +3,26 @@ meta:
   default:
     azs: [z1]
 
+params:
+  load-balancers: (( param "Please specify the full load balancer configuration" ))
+
 instance_groups:
-  - name:      load-balancer
-    instances: 1
+  - name:      lb
+    instances: (( grab params.instances || 2 ))
     azs:       (( grab params.availability_zones || meta.default.azs ))
     stemcell:  default
+    vm_resources:
+      cpu: (( grab params.cpu || 2 ))
+      ram: (( grab params.ram || 2048 ))
+      ephemeral_disk_size: (( grab params.disk || 16384 ))
     networks:
-    - name:       (( grab params.haproxy_network || "default" ))
-      static_ips: (( static_ips (4, 3, 255)))
-    vm_type:   (( grab params.vm_type || "default" ))
+      - name: (( grab params.network || "default" ))
 
     jobs:
-    - name: haproxy
-      release: load-balancer
-      properties:
-        advanced: (( grab params.advanced_haproxy_config  ))
-        load-balancers: (( grab params.load_balancers  ))
+      - name: haproxy
+        release: load-balancer
+        properties:
+          load-balancers: (( grab params.load-balancers ))
 
 update:
   serial:            false

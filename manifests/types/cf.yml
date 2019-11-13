@@ -1,0 +1,86 @@
+---
+meta:
+  default:
+    protocols:
+      - tlsv1.0
+      - tlsv1.1
+      - tlsv1.2
+    ciphers:
+      - ECDHE-ECDSA-CHACHA20-POLY1305
+      - ECDHE-RSA-CHACHA20-POLY1305
+      - ECDHE-ECDSA-AES128-GCM-SHA256
+      - ECDHE-RSA-AES128-GCM-SHA256
+      - ECDHE-ECDSA-AES256-GCM-SHA384
+      - ECDHE-RSA-AES256-GCM-SHA384
+      - DHE-RSA-AES128-GCM-SHA256
+      - DHE-RSA-AES256-GCM-SHA384
+      - ECDHE-ECDSA-AES128-SHA256
+      - ECDHE-RSA-AES128-SHA256
+      - ECDHE-ECDSA-AES128-SHA
+      - ECDHE-RSA-AES256-SHA384
+      - ECDHE-RSA-AES128-SHA
+      - ECDHE-ECDSA-AES256-SHA384
+      - ECDHE-ECDSA-AES256-SHA
+      - ECDHE-RSA-AES256-SHA
+      - DHE-RSA-AES128-SHA256
+      - DHE-RSA-AES128-SHA
+      - DHE-RSA-AES256-SHA256
+      - DHE-RSA-AES256-SHA
+      - ECDHE-ECDSA-DES-CBC3-SHA
+      - ECDHE-RSA-DES-CBC3-SHA
+      - EDH-RSA-DES-CBC3-SHA
+      - AES128-GCM-SHA256
+      - AES256-GCM-SHA384
+      - AES128-SHA256
+      - AES256-SHA256
+      - AES128-SHA
+      - AES256-SHA
+      - DES-CBC3-SHA
+      - !DSS
+
+params:
+  cf-deployment: (( concat params.env "-cf" ))
+  allow-to-internal: 0.0.0.0/0
+  gorouter-http-port: 80
+  gorouter-ssh-port:  2222
+
+  load-balancers:
+    - name: HTTP
+      mode: http
+      port: 80
+      redirect_to_https: all
+
+    - name: HTTPS
+      mode: http
+      port: 443
+      tls:
+        protocols:    (( grab params.protocols || meta.default.protocols ))
+        ciphers:      (( grab params.ciphers   || meta.default.ciphers ))
+        certificates: (( grab params.certificates ))
+      acls:
+        - name: internal
+          allow: (( grab params.allow-to-internal ))
+      backend:
+        link: gorouter
+        port: (( grab params.gorouter-http-port ))
+
+    - name: SSH
+      mode: tcp
+      port: 2222
+      acls:
+        - name: internal
+          allow: (( grab params.allow-to-internal ))
+      backend:
+        link: ssh-proxy
+        port: (( grab params.gorouter-ssh-port ))
+
+instance_groups:
+  - name: lb
+    jobs:
+      - name: haproxy
+        release: load-balancer
+        consumes:
+          gorouter:  {from: gorouter,  deployment: (( grab params.cf-deployment ))}
+          ssh-proxy: {from: ssh-proxy, deployment: (( grab params.cf-deployment ))}
+        properties:
+          load-balancers: (( grab params.load-balancers ))

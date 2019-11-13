@@ -3,8 +3,29 @@ shopt -s nullglob
 set -eu
 
 # this kit has no features yet
-#validate_features ...
+validate_features vip static-ips cf
 
 declare -a manifests
 manifests+=( manifests/load-balancer.yml )
+
+if want_feature vip; then
+  manifests+=( manifests/keepalived.yml )
+fi
+
+if want_feature static-ips; then
+  manifests+=( manifests/static.yml )
+fi
+
+types=0
+if want_feature cf; then
+  types=$(( types + 1 ))
+  manifests+=( manifests/types/cf.yml )
+fi
+
+# If we have chosen more than one load-balancer type, that's a problem.
+if [[ $types > 1 ]]; then
+  echo >&2 "You have enabled more than one load-balancer 'type' feature flag."
+  exit 1
+fi
+
 echo ${manifests[@]}

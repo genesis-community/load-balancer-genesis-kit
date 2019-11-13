@@ -1,0 +1,13 @@
+---
+params:
+  virtual-router-id: (( param "Please set a VRRP Virtual Router ID (a network-unique integer between 0 and 256)" ))
+  virtual-ip:        (( param "Please set a VRRP Virtual IPv4 Address" ))
+
+instance_groups:
+  - name: lb
+    jobs:
+      - name: keepalived
+        release: load-balancer
+        properties:
+          id:  (( grab params.virtual-router-id ))
+          vip: (( grab params.virtual-ip ))

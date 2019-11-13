@@ -1,0 +1,8 @@
+---
+params:
+  ips: (( param "Please specify static IP address(es) for your load balancer(s)" ))
+
+instance_groups:
+  - name: lb
+    networks:
+      - static_ips: (( grab params.ips ))
