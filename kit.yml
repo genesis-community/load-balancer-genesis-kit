@@ -1,10 +1,9 @@
+---
 name:    load-balancer
 version: 0.0.1
-author:  Andrew Hartpence <andrew.hartpence@gmail.com>
+author:  James Hunt <jhunt@starkandwayne.com>
 docs:    https://github.com/genesis-community/load-balancer-boshrelease
 code:    https://github.com/genesis-community/load-balancer-genesis-kit
 
 # 2.6.0 was our last big feature bump
-genesis_min_version: 2.6.0
-
-
+genesis_version_min: 2.6.0
