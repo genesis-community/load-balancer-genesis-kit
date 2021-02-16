@@ -6,7 +6,8 @@ set -eu
 validate_features vip static-ips cf
 
 declare -a manifests
-manifests+=( manifests/load-balancer.yml )
+manifests+=( manifests/load-balancer.yml
+             manifests/releases/load-balancer.yml )
 
 if want_feature vip; then
   manifests+=( manifests/keepalived.yml )

@@ -36,9 +36,3 @@ stemcells:
   - alias:   default
     os:      (( grab params.stemcell_os      || "ubuntu-xenial" ))
     version: (( grab params.stemcell_version || "latest" ))
-
-releases:
-- name:    load-balancer
-  version: 0.2.2
-  url:     https://github.com/genesis-community/load-balancer-boshrelease/releases/download/v0.2.2/load-balancer-0.2.2.tgz
-  sha1:    38aace530188c44eef3522762028a5d5d166dda1
