@@ -7,7 +7,7 @@
 #
 # author:  James Hunt <james@niftylogic.com>
 #          Dennis Bell <dennis.j.bell@gmail.com>
-# created: 2016-03-04
+#          Ramon Makkelie <makkelie@starkandwayne.com>
 
 need_command() {
   local cmd=${1:?need_command() - no command name given}
@@ -38,7 +38,7 @@ echo >&2 "Using settings found in ${settings_file}"
 
 set -e
 trap "rm -f .deploy.yml" QUIT TERM EXIT INT
-spruce merge pipeline.yml ${settings_file} > .deploy.yml
+spruce merge pipeline/*.yml ${settings_file} > .deploy.yml
 PIPELINE=$(spruce json .deploy.yml | jq -r '.meta.pipeline // ""')
 if [[ -z ${PIPELINE} ]]; then
   echo >&2 "Missing pipeline name in ci/settings.yml!"
@@ -63,6 +63,13 @@ if [[ -z ${TARGET} ]]; then
   exit 1
 fi
 
+EXPOSED=$(spruce json .deploy.yml | jq -r '.meta.exposed // false')
+EXPOSE=expose
+if [[ ${EXPOSED} == "false" ]]; then
+  EXPOSE=hide
+fi
+
 set +x
-fly --target ${TARGET} set-pipeline     --pipeline ${PIPELINE} --config .deploy.yml
-fly --target ${TARGET} unpause-pipeline --pipeline ${PIPELINE}
+fly --target ${TARGET} set-pipeline       --pipeline ${PIPELINE} --config .deploy.yml
+fly --target ${TARGET} unpause-pipeline   --pipeline ${PIPELINE}
+fly --target ${TARGET} ${EXPOSE}-pipeline --pipeline ${PIPELINE}

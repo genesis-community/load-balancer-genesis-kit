@@ -1,0 +1,8 @@
+resources:
+  - name: bosh-release-load-balancer
+    type: github-release
+    check_every: 24h
+    source:
+      user:         (( grab meta.github.owner ))
+      repository:   load-balancer-boshrelease
+      access_token: (( grab meta.github.access_token ))

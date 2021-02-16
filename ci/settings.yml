@@ -1,8 +1,8 @@
 ---
 meta:
-  kit:     load-balancer 
+  kit:     load-balancer
   release: Load Balancer Genesis Kit
-  target:  genesis@pipes
+  target:  pipes@genesis
   url:     https://pipes.starkandwayne.com/
 
 
