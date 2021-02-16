@@ -7,8 +7,14 @@ set -o pipefail
 pushd bosh-release > /dev/null
 release_name=$RELEASE_NAME
 release_version=$( cat version )
-url=$( cat url )
-sha1=$( cat sha1 )
+# if not using bosh.io but github-release resource we asume that sha1 file is not availeble so we need to generate the url and sha1
+if [ ! -f sha1 ]; then
+  url=$( cat url |sed s/tag/download/g)/$(ls *.tgz )
+  sha1=$( sha1sum *.tgz | awk '{print $1}' )
+else
+  url=$( cat url )
+  sha1=$( cat sha1 )
+fi
 popd > /dev/null
 
 # ouput hack
