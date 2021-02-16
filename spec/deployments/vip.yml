@@ -1,0 +1,29 @@
+---
+kit:
+  features:
+    - vip
+
+genesis:
+  env:   vip
+
+params:
+  load-balancers:
+  - name: front-door
+    mode: http
+    port: 443
+    acls:
+    - name: internal-only
+      deny:
+        - 10.0.0.0/8
+    backend:
+      addresses:
+        - 10.99.0.100:3200
+
+    tls:
+      certificates:
+      - testcert
+  advanced_haproxy_config: null
+  haproxy_network: loadbalancer
+  vm_type: loadbalancer
+  virtual-ip: 1.2.3.4.5
+  virtual-router-id: 132456789

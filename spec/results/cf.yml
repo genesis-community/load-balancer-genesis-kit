@@ -1,0 +1,102 @@
+instance_groups:
+- azs:
+  - z1
+  instances: 2
+  jobs:
+  - consumes:
+      gorouter:
+        deployment: cf-cf
+        from: gorouter
+      ssh-proxy:
+        deployment: cf-cf
+        from: ssh-proxy
+    name: haproxy
+    properties:
+      load-balancers:
+      - mode: http
+        name: HTTP
+        port: 80
+        redirect_to_https: all
+      - acls:
+        - allow: 0.0.0.0/0
+          name: internal
+        backend:
+          link: gorouter
+          port: 80
+        mode: http
+        name: HTTPS
+        port: 443
+        tls:
+          certificates:
+          - testcert
+          ciphers:
+          - ECDHE-ECDSA-CHACHA20-POLY1305
+          - ECDHE-RSA-CHACHA20-POLY1305
+          - ECDHE-ECDSA-AES128-GCM-SHA256
+          - ECDHE-RSA-AES128-GCM-SHA256
+          - ECDHE-ECDSA-AES256-GCM-SHA384
+          - ECDHE-RSA-AES256-GCM-SHA384
+          - DHE-RSA-AES128-GCM-SHA256
+          - DHE-RSA-AES256-GCM-SHA384
+          - ECDHE-ECDSA-AES128-SHA256
+          - ECDHE-RSA-AES128-SHA256
+          - ECDHE-ECDSA-AES128-SHA
+          - ECDHE-RSA-AES256-SHA384
+          - ECDHE-RSA-AES128-SHA
+          - ECDHE-ECDSA-AES256-SHA384
+          - ECDHE-ECDSA-AES256-SHA
+          - ECDHE-RSA-AES256-SHA
+          - DHE-RSA-AES128-SHA256
+          - DHE-RSA-AES128-SHA
+          - DHE-RSA-AES256-SHA256
+          - DHE-RSA-AES256-SHA
+          - ECDHE-ECDSA-DES-CBC3-SHA
+          - ECDHE-RSA-DES-CBC3-SHA
+          - EDH-RSA-DES-CBC3-SHA
+          - AES128-GCM-SHA256
+          - AES256-GCM-SHA384
+          - AES128-SHA256
+          - AES256-SHA256
+          - AES128-SHA
+          - AES256-SHA
+          - DES-CBC3-SHA
+          - ""
+          protocols:
+          - tlsv1.0
+          - tlsv1.1
+          - tlsv1.2
+      - acls:
+        - allow: 0.0.0.0/0
+          name: internal
+        backend:
+          link: ssh-proxy
+          port: 2222
+        mode: tcp
+        name: SSH
+        port: 2222
+    release: load-balancer
+  name: lb
+  networks:
+  - name: default
+  stemcell: default
+  vm_resources:
+    cpu: 2
+    ephemeral_disk_size: 16384
+    ram: 2048
+name: cf-load-balancer
+releases:
+- name: load-balancer
+  sha1: 38aace530188c44eef3522762028a5d5d166dda1
+  url: https://github.com/genesis-community/load-balancer-boshrelease/releases/download/v0.2.2/load-balancer-0.2.2.tgz
+  version: 0.2.2
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+update:
+  canaries: 1
+  canary_watch_time: 5000-600000
+  max_errors: 1
+  max_in_flight: 1
+  serial: false
+  update_watch_time: 5000-600000

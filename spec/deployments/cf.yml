@@ -1,0 +1,13 @@
+---
+kit:
+  features:
+    - cf
+
+genesis:
+  env:   cf
+
+params:
+  haproxy_network: loadbalancer
+  vm_type: loadbalancer
+  certificates:
+  - testcert
