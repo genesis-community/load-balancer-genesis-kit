@@ -1,3 +1,8 @@
+exodus:
+  bosh: static-ips
+  features: static-ips
+  is_director: false
+  use_create_env: false
 instance_groups:
 - azs:
   - z1
