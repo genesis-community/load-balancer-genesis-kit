@@ -1,1 +1,6 @@
 *.tar.gz
+*.log
+.DS_Store
+*.tgz
+*.tar
+*.zip
