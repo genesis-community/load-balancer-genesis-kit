@@ -40,6 +40,9 @@ sub perform {
               'net_id' => $self->network_reference('id'),
               'security_groups' => ['default']
             },
+            aws => {
+              'subnet' => $self->network_reference('subnet_id')
+            },
           },
         },
       )
@@ -57,6 +60,23 @@ sub perform {
               'size' => 20 # in gigabytes
             },
           },
+          aws => {
+            'instance_type' => $self->for_scale({
+              dev => 't3.medium',
+              prod => 'm6i.large'
+            }, 't3.medium'),
+            'ephemeral_disk' => {
+              'size' => $self->for_scale({
+                dev => gigabytes(8),
+                prod => gigabytes(8)
+              }, gigabytes(8)),
+              'type' => 'gp3',
+              'encrypted' => $self->TRUE
+            },
+            'metadata_options' => {
+              'http_tokens' => 'required'
+            }
+          },
         },
       ),
     ],
@@ -71,6 +91,21 @@ sub perform {
         cloud_properties_for_iaas => {
           openstack => {
             'type' => 'storage_premium_perf6',
+          },
+          aws => {
+            'type' => 'gp3',
+            'encrypted' => $self->TRUE
+          },
+        },
+      ),
+    ],
+    'vm_extensions' => [
+      $self->vm_extension_definition('load-balancer',
+        cloud_properties_for_iaas => {
+          aws => {
+            'lb_target_groups' => [
+              $self->param('target_group', 'ocfp-ocf-lb-prod-tg')
+            ]
           },
         },
       ),
