@@ -22,7 +22,17 @@ var _ = Describe("loadbalancer Kit", func() {
 			CPI:         "aws",
 		})
 		Test(Environment{
+			Name:        "underscore",
+			CloudConfig: "aws",
+			CPI:         "aws",
+		})
+		Test(Environment{
 			Name:        "cf",
+			CloudConfig: "aws",
+			CPI:         "aws",
+		})
+		Test(Environment{
+			Name:        "cf-underscore",
 			CloudConfig: "aws",
 			CPI:         "aws",
 		})

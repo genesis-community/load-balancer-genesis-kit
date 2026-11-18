@@ -85,7 +85,7 @@ sub perform {
   }
 
   # Show available load balancer endpoints
-  my $load_balancers = $env->lookup('params.load_balancers') || [];
+  my $load_balancers = ($env->lookup('params.load_balancers') // $env->lookup('params.load-balancers')) || [];
 
   if (@$load_balancers) {
     info("\n#B{Load Balancer Endpoints}\n\n");

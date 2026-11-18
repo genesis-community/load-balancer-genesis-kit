@@ -31,8 +31,13 @@ sub perform {
   $env->notify("checking load balancer configuration...");
 
   # Validate load_balancers param exists
-  my $load_balancers = $env->lookup('params.load_balancers');
-  if (!$load_balancers || ref($load_balancers) ne 'ARRAY' || scalar(@$load_balancers) == 0) {
+  # (params.load-balancers is the older spelling, still accepted.)  The cf
+  # feature supplies its own default list when the environment sets none.
+  my $load_balancers = $env->lookup('params.load_balancers') // $env->lookup('params.load-balancers');
+  if (!defined($load_balancers) && $env->has_feature('cf')) {
+    $env->notify(success => "using the default load balancers of the cf feature. [#G{OK}]");
+    $load_balancers = [];
+  } elsif (!$load_balancers || ref($load_balancers) ne 'ARRAY' || scalar(@$load_balancers) == 0) {
     $env->notify(error => "no load balancers defined in params.load_balancers! [#R{FAILED}]");
     $self->{ok} = 0;
   } else {

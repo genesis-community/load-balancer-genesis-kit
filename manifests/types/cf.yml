@@ -44,6 +44,9 @@ params:
   gorouter-http-port: 80
   gorouter-ssh-port:  2222
 
+  # The default stays under the hyphenated name, so that an environment
+  # setting either spelling replaces it.  An environment that sets
+  # load_balancers takes precedence over this default.
   load-balancers:
     - name: HTTP
       mode: http
@@ -83,4 +86,4 @@ instance_groups:
           gorouter:  {from: gorouter,  deployment: (( grab params.cf-deployment ))}
           ssh-proxy: {from: ssh-proxy, deployment: (( grab params.cf-deployment ))}
         properties:
-          load-balancers: (( grab params.load-balancers ))
+          load-balancers: (( grab params.load_balancers || params.load-balancers ))

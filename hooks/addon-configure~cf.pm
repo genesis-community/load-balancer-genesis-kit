@@ -39,7 +39,7 @@ sub perform {
   my $env_file = "$ENV{GENESIS_ROOT}/$ENV{GENESIS_ENVIRONMENT}.yml";
 
   # Get current load balancers configuration
-  my $load_balancers = $env->lookup('params.load_balancers') || [];
+  my $load_balancers = ($env->lookup('params.load_balancers') // $env->lookup('params.load-balancers')) || [];
 
   # If reset option is provided, reset the configuration
   if ($options{reset}) {
@@ -113,7 +113,7 @@ sub _reset_configuration {
     my $written_lb = 0;
 
     foreach my $line (@lines) {
-      if ($line =~ /^\s*load_balancers:/) {
+      if ($line =~ /^\s*load[_-]balancers:/) {
         $in_lb_section = 1;
         print $out $line;
         print $out "  - name: front-door # ---------- default load balancer\n";
@@ -405,7 +405,7 @@ sub _update_env_file {
   my $written_lb = 0;
 
   foreach my $line (@lines) {
-    if ($line =~ /^\s*load_balancers:/) {
+    if ($line =~ /^\s*load[_-]balancers:/) {
       $in_lb_section = 1;
       print $out $line;
 

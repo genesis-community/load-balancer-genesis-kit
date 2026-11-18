@@ -3,9 +3,11 @@ meta:
   default:
     azs: [z1]
 
-params:
-  load-balancers: (( param "Please specify the full load balancer configuration" ))
-
+# The load balancer list is read from params.load_balancers, or from
+# params.load-balancers when only that older spelling is set.  Neither is
+# declared here with (( param )), because requiring one spelling would
+# reject an environment that sets the other.  The check hook reports a
+# missing list.
 instance_groups:
   - name:      lb
     instances: (( grab params.instances || 2 ))
@@ -22,7 +24,7 @@ instance_groups:
       - name: haproxy
         release: load-balancer
         properties:
-          load-balancers: (( grab params.load-balancers ))
+          load-balancers: (( grab params.load_balancers || params.load-balancers ))
 
 update:
   serial:            false

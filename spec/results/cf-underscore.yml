@@ -1,0 +1,58 @@
+exodus:
+  bosh: cf-underscore
+  features: cf
+  iaas: null
+  is_director: false
+  scale: null
+  services: null
+  use_create_env: false
+instance_groups:
+- azs:
+  - z1
+  instances: 2
+  jobs:
+  - consumes:
+      gorouter:
+        deployment: cf-underscore-cf
+        from: gorouter
+      ssh-proxy:
+        deployment: cf-underscore-cf
+        from: ssh-proxy
+    name: haproxy
+    properties:
+      load-balancers:
+      - backend:
+          addresses:
+          - 10.99.0.100:3200
+        mode: http
+        name: front-door
+        port: 443
+        tls:
+          certificates:
+          - testcert
+    release: load-balancer
+  name: lb
+  networks:
+  - name: default
+  stemcell: default
+  vm_resources:
+    cpu: 2
+    ephemeral_disk_size: 16384
+    ram: 2048
+name: cf-underscore-load-balancer
+releases:
+- name: load-balancer
+  sha1: 38aace530188c44eef3522762028a5d5d166dda1
+  url: https://github.com/genesis-community/load-balancer-boshrelease/releases/download/v0.2.2/load-balancer-0.2.2.tgz
+  version: 0.2.2
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+update:
+  canaries: 1
+  canary_watch_time: 5000-600000
+  max_errors: 1
+  max_in_flight: 1
+  serial: false
+  update_watch_time: 5000-600000

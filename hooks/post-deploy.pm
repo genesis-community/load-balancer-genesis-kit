@@ -36,7 +36,7 @@ sub perform {
   # Only proceed with helpful information if deployment was successful
   if ($self->deploy_successful) {
     # Get load balancer configuration
-    my $load_balancers = $env->lookup('params.load_balancers') || [];
+    my $load_balancers = ($env->lookup('params.load_balancers') // $env->lookup('params.load-balancers')) || [];
     my $lb_count = scalar(@$load_balancers);
 
     # Get VIP information if applicable

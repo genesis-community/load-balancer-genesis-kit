@@ -33,12 +33,17 @@ sub perform {
   $env->notify("validating load balancer configuration...");
 
   # Get load balancers from the environment
-  my $load_balancers = $env->lookup('params.load_balancers');
-  if (!$load_balancers || ref($load_balancers) ne 'ARRAY' || scalar(@$load_balancers) == 0) {
+  # (params.load-balancers is the older spelling, still accepted.)  The cf
+  # feature supplies its own default list when the environment sets none.
+  my $load_balancers = $env->lookup('params.load_balancers') // $env->lookup('params.load-balancers');
+  if (!defined($load_balancers) && $env->has_feature('cf')) {
+    info("Using the default load balancers of the cf feature.");
+    $load_balancers = [];
+  } elsif (!$load_balancers || ref($load_balancers) ne 'ARRAY' || scalar(@$load_balancers) == 0) {
     bail("No load balancers defined in params.load_balancers");
+  } else {
+    info("Found %d load balancer(s) configured.", scalar(@$load_balancers));
   }
-
-  info("Found %d load balancer(s) configured.", scalar(@$load_balancers));
 
   # Check if static IPs are configured when static-ips feature is enabled
   if ($env->has_feature('static-ips')) {

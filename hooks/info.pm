@@ -39,7 +39,7 @@ sub perform {
   info("\n#B{BOSH Deployment Information}\n\n%s\n", $out);
 
   # Get load balancer configuration
-  my $load_balancers = $env->lookup('params.load_balancers') || [];
+  my $load_balancers = ($env->lookup('params.load_balancers') // $env->lookup('params.load-balancers')) || [];
 
   # Display load balancer info
   info("#B{Load Balancer Configuration}\n");

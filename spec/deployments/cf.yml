@@ -1,5 +1,7 @@
 ---
 kit:
+  name:    dev
+  version: latest
   features:
     - cf
 
@@ -7,6 +9,7 @@ genesis:
   env:   cf
 
 params:
+  env: cf
   haproxy_network: loadbalancer
   vm_type: loadbalancer
   certificates:

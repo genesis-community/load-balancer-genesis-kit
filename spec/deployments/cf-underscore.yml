@@ -1,0 +1,26 @@
+---
+kit:
+  name:    dev
+  version: latest
+  features:
+    - cf
+
+genesis:
+  env:   cf-underscore
+
+params:
+  env: cf-underscore
+  load_balancers:
+  - name: front-door
+    mode: http
+    port: 443
+    backend:
+      addresses:
+        - 10.99.0.100:3200
+    tls:
+      certificates:
+      - testcert
+  haproxy_network: loadbalancer
+  vm_type: loadbalancer
+  certificates:
+  - testcert

@@ -1,7 +1,10 @@
 exodus:
   bosh: vip
   features: vip
+  iaas: null
   is_director: false
+  scale: null
+  services: null
   use_create_env: false
 instance_groups:
 - azs:
