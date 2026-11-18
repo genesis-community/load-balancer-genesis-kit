@@ -5,7 +5,7 @@ This guide provides step-by-step instructions for deploying the Load Balancer Ge
 ## Prerequisites
 
 - BOSH Director with cloud-config configured
-- Genesis v2.6.0 or later
+- Genesis v3.1.0-rc.20 or later
 - Access to a Vault instance (for storing certificates and credentials)
 
 ## Basic Deployment

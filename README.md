@@ -13,7 +13,7 @@ The Load Balancer Genesis Kit provides a comprehensive solution for deploying HA
 ## Prerequisites
 
 - BOSH Director
-- Genesis v2.6.0 or later
+- Genesis v3.1.0-rc.20 or later
 - Access to the public internet (or a suitable blobstore mirror)
 
 ## Quick Start
