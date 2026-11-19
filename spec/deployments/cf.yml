@@ -9,7 +9,6 @@ genesis:
   env:   cf
 
 params:
-  env: cf
   haproxy_network: loadbalancer
   vm_type: loadbalancer
   certificates:

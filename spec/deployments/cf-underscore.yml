@@ -9,7 +9,7 @@ genesis:
   env:   cf-underscore
 
 params:
-  env: cf-underscore
+  env: prod
   load_balancers:
   - name: front-door
     mode: http

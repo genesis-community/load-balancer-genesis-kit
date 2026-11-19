@@ -1,5 +1,9 @@
 ---
 meta:
+  # Genesis 3.2 provides genesis.env, not params.env.  An environment file
+  # may still set params.env to name the cf deployment differently.
+  cf-env: (( grab params.env || genesis.env ))
+
   default:
     protocols:
       - tlsv1.0
@@ -39,7 +43,7 @@ meta:
       - !DSS
 
 params:
-  cf-deployment: (( concat params.env "-cf" ))
+  cf-deployment: (( concat meta.cf-env "-cf" ))
   allow-to-internal: 0.0.0.0/0
   gorouter-http-port: 80
   gorouter-ssh-port:  2222

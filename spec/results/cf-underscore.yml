@@ -13,10 +13,10 @@ instance_groups:
   jobs:
   - consumes:
       gorouter:
-        deployment: cf-underscore-cf
+        deployment: prod-cf
         from: gorouter
       ssh-proxy:
-        deployment: cf-underscore-cf
+        deployment: prod-cf
         from: ssh-proxy
     name: haproxy
     properties:
