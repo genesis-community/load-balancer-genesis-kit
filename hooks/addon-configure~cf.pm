@@ -6,7 +6,7 @@ use strict;
 use warnings;
 use v5.20; # Genesis min perl version is 5.20
 use Genesis qw/bail info run/;
-use Genesis::UI qw/prompt_for_boolean prompt_for/;
+use Genesis::UI qw/prompt_for_boolean prompt_for_choice prompt_for_line/;
 use parent qw(Genesis::Hook::Addon);
 use lib $ENV{GENESIS_LIB} // "$ENV{HOME}/.genesis/lib";
 use File::Basename qw/basename/;
@@ -16,6 +16,18 @@ sub init {
   my $obj = $class->SUPER::init(@_);
   $obj->check_minimum_genesis_version('3.1.0-rc.20');
   return $obj;
+}
+
+# _choose - ask for one of several options and return its value.  Each option
+# is a [value, label] pair.
+sub _choose {
+  my ($prompt, @options) = @_;
+  return prompt_for_choice(
+    $prompt,
+    [map {$_->[0]} @options],
+    undef,
+    [map {$_->[1]} @options],
+  );
 }
 
 sub cmd_details {
@@ -63,14 +75,13 @@ sub perform {
   }
 
   # Prompt for action
-  my $action;
-  prompt_for('action', 'select',
+  my $action = _choose(
     'What would you like to do?',
-    '-o "[add] Add a new load balancer"',
-    '-o "[modify] Modify an existing load balancer"',
-    '-o "[remove] Remove a load balancer"',
-    '-o "[exit] Exit without changes"',
-    \$action);
+    ['add',    'Add a new load balancer'],
+    ['modify', 'Modify an existing load balancer'],
+    ['remove', 'Remove a load balancer'],
+    ['exit',   'Exit without changes'],
+  );
 
   if ($action eq 'add') {
     $self->_add_load_balancer($env_file, $load_balancers);
@@ -150,24 +161,17 @@ sub _add_load_balancer {
   my ($self, $env_file, $load_balancers) = @_;
 
   # Collect information for the new load balancer
-  my $name;
-  prompt_for('name', 'line',
-    'Enter a name for the new load balancer:',
-    '--validation nonempty', \$name);
+  my $name = prompt_for_line('Enter a name for the new load balancer:', 'name');
 
-  my $mode;
-  prompt_for('mode', 'select',
+  my $mode = _choose(
     'Select the mode for this load balancer:',
-    '-o "[http] HTTP/HTTPS mode"',
-    '-o "[tcp] TCP mode"',
-    \$mode);
-  $mode =~ s/^\[(.*)\].*$/$1/;
+    ['http', 'HTTP/HTTPS mode'],
+    ['tcp',  'TCP mode'],
+  );
 
-  my $port;
-  prompt_for('port', 'line',
-    'Enter the port number:',
-    '--validation number --default ' . ($mode eq 'http' ? '80' : '443'),
-    \$port);
+  my $port = prompt_for_line(
+    'Enter the port number:', 'port',
+    ($mode eq 'http' ? '80' : '443'), 'port');
 
   my $use_tls = prompt_for_boolean(
     "Enable TLS (SSL) for this load balancer? [y|n]",
@@ -180,10 +184,7 @@ sub _add_load_balancer {
 
   my $address;
   do {
-    $address = '';
-    prompt_for('address', 'line',
-      'Backend address:',
-      '--default ""', \$address);
+    $address = prompt_for_line('Backend address:', 'address', '');
 
     push @backend_addresses, $address if $address;
   } while ($address);
@@ -223,51 +224,36 @@ sub _modify_load_balancer {
   my ($self, $env_file, $load_balancers) = @_;
 
   # Prompt for which load balancer to modify
-  my @options;
-  foreach my $i (0..$#$load_balancers) {
-    push @options, "-o \"[$i] $load_balancers->[$i]->{name}\"";
-  }
-
-  my $index;
-  prompt_for('index', 'select',
+  my $index = _choose(
     'Which load balancer would you like to modify?',
-    @options, \$index);
-  $index =~ s/^\[(.*)\].*$/$1/;
+    map {[$_, $load_balancers->[$_]->{name}]} 0..$#$load_balancers
+  );
 
   my $lb = $load_balancers->[$index];
 
   # Prompt for which field to modify
-  my $field;
-  prompt_for('field', 'select',
+  my $field = _choose(
     "What would you like to modify for '$lb->{name}'?",
-    '-o "[name] Name"',
-    '-o "[mode] Mode (http/tcp)"',
-    '-o "[port] Port number"',
-    '-o "[backend] Backend addresses"',
-    '-o "[tls] TLS configuration"',
-    \$field);
-  $field =~ s/^\[(.*)\].*$/$1/;
+    ['name',    'Name'],
+    ['mode',    'Mode (http/tcp)'],
+    ['port',    'Port number'],
+    ['backend', 'Backend addresses'],
+    ['tls',     'TLS configuration'],
+  );
 
   if ($field eq 'name') {
-    my $new_name;
-    prompt_for('new_name', 'line',
-      'Enter new name:',
-      "--default \"$lb->{name}\" --validation nonempty", \$new_name);
+    my $new_name = prompt_for_line('Enter new name:', 'name', $lb->{name});
     $lb->{name} = $new_name;
   } elsif ($field eq 'mode') {
-    my $new_mode;
-    prompt_for('new_mode', 'select',
+    my $new_mode = _choose(
       'Select the new mode:',
-      '-o "[http] HTTP/HTTPS mode"',
-      '-o "[tcp] TCP mode"',
-      \$new_mode);
-    $new_mode =~ s/^\[(.*)\].*$/$1/;
+      ['http', 'HTTP/HTTPS mode'],
+      ['tcp',  'TCP mode'],
+    );
     $lb->{mode} = $new_mode;
   } elsif ($field eq 'port') {
-    my $new_port;
-    prompt_for('new_port', 'line',
-      'Enter new port number:',
-      "--default \"$lb->{port}\" --validation number", \$new_port);
+    my $new_port = prompt_for_line(
+      'Enter new port number:', 'port', $lb->{port}, 'port');
     $lb->{port} = $new_port;
   } elsif ($field eq 'backend') {
     # Display current backend addresses
@@ -277,33 +263,22 @@ sub _modify_load_balancer {
     }
 
     # Prompt for action
-    my $action;
-    prompt_for('action', 'select',
+    my $action = _choose(
       'What would you like to do with backend addresses?',
-      '-o "[add] Add a new address"',
-      '-o "[remove] Remove an address"',
-      '-o "[replace] Replace all addresses"',
-      \$action);
-    $action =~ s/^\[(.*)\].*$/$1/;
+      ['add',     'Add a new address'],
+      ['remove',  'Remove an address'],
+      ['replace', 'Replace all addresses'],
+    );
 
     if ($action eq 'add') {
-      my $new_addr;
-      prompt_for('new_addr', 'line',
-        'Enter new backend address:',
-        '--validation nonempty', \$new_addr);
+      my $new_addr = prompt_for_line('Enter new backend address:', 'address');
       push @{$lb->{backend}->{addresses}}, $new_addr;
     } elsif ($action eq 'remove') {
       if (@{$lb->{backend}->{addresses}} > 1) {
-        my @options;
-        foreach my $i (0..$#{$lb->{backend}->{addresses}}) {
-          push @options, "-o \"[$i] $lb->{backend}->{addresses}->[$i]\"";
-        }
-
-        my $addr_index;
-        prompt_for('addr_index', 'select',
+        my $addr_index = _choose(
           'Which address would you like to remove?',
-          @options, \$addr_index);
-        $addr_index =~ s/^\[(.*)\].*$/$1/;
+          map {[$_, $lb->{backend}->{addresses}->[$_]]} 0..$#{$lb->{backend}->{addresses}}
+        );
 
         splice(@{$lb->{backend}->{addresses}}, $addr_index, 1);
       } else {
@@ -315,10 +290,7 @@ sub _modify_load_balancer {
 
       my $address;
       do {
-        $address = '';
-        prompt_for('address', 'line',
-          'Backend address:',
-          '--default ""', \$address);
+        $address = prompt_for_line('Backend address:', 'address', '');
 
         push @new_addresses, $address if $address;
       } while ($address);
@@ -360,16 +332,10 @@ sub _remove_load_balancer {
   my ($self, $env_file, $load_balancers) = @_;
 
   # Prompt for which load balancer to remove
-  my @options;
-  foreach my $i (0..$#$load_balancers) {
-    push @options, "-o \"[$i] $load_balancers->[$i]->{name}\"";
-  }
-
-  my $index;
-  prompt_for('index', 'select',
+  my $index = _choose(
     'Which load balancer would you like to remove?',
-    @options, \$index);
-  $index =~ s/^\[(.*)\].*$/$1/;
+    map {[$_, $load_balancers->[$_]->{name}]} 0..$#$load_balancers
+  );
 
   my $lb_name = $load_balancers->[$index]->{name};
 
